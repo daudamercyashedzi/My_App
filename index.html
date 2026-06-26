@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which Era Are You Stuck In?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#1B1330;
+    --bg-soft:#241A3D;
+    --card:#2A1F44;
+    --card-border:#3D2E5C;
+    --accent:#FFC857;
+    --text:#F5EFFF;
+    --text-muted:#B9A9D9;
+    --radius:24px;
+    --accentA:#FFC857;
+    --accentB:#FF8A5B;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(255,200,87,0.08), transparent 50%),
+      radial-gradient(circle at 90% 100%, rgba(199,36,177,0.10), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  *:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+
+  .app{
+    width:100%;
+    max-width:440px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:36px 28px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);
+    position:relative;
+    overflow:hidden;
+    transition:background 0.6s ease;
+  }
+
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadeUp .45s ease both;}
+
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 14px;
+  }
+
+  h1.display{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:34px;
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 14px;
+  }
+
+  p.lede{
+    color:var(--text-muted);
+    font-size:15.5px;
+    line-height:1.5;
+    margin:0 0 28px;
+  }
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+  }
+
+  .btn-primary{
+    width:100%;
+    background:var(--accent);
+    color:#241A3D;
+    font-weight:600;
+    font-size:15.5px;
+    padding:16px 20px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:transform .15s ease, filter .15s ease;
+  }
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-primary:active{transform:scale(0.98);}
+
+  .btn-secondary{
+    width:100%;
+    background:transparent;
+    color:var(--text);
+    font-weight:500;
+    font-size:14.5px;
+    padding:14px 20px;
+    border-radius:14px;
+    border:1px solid var(--card-border);
+    margin-top:10px;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .btn-secondary:hover{background:rgba(255,255,255,0.04);}
+  .btn-secondary:active{transform:scale(0.98);}
+
+  /* Quiz screen */
+  .progress-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .progress-label{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .dots{
+    display:flex;
+    gap:6px;
+  }
+  .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--card-border);
+    transition:background .25s ease, transform .25s ease;
+  }
+  .dot.filled{
+    background:var(--accent);
+    transform:scale(1.2);
+  }
+
+  .question-text{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:23px;
+    line-height:1.25;
+    margin:0 0 22px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .option-btn{
+    text-align:left;
+    background:var(--bg-soft);
+    border:1px solid var(--card-border);
+    color:var(--text);
+    padding:16px 18px;
+    border-radius:14px;
+    font-size:14.5px;
+    line-height:1.4;
+    transition:border-color .15s ease, transform .12s ease, background .15s ease;
+  }
+  .option-btn:hover{
+    border-color:var(--accent);
+    background:rgba(255,200,87,0.06);
+  }
+  .option-btn:active{transform:scale(0.985);}
+
+  /* Result screen */
+  .dial-wrap{
+    display:flex;
+    justify-content:center;
+    margin:-4px 0 18px;
+  }
+
+  .dial-icon{
+    fill:none;
+    stroke:var(--text-muted);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .dial-icon.active-icon{
+    stroke:var(--accentA);
+  }
+
+  #needle{
+    transform-origin:100px 100px;
+    transition:transform 2.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #needle{transition:none;}
+    .screen.active{animation:none;}
+  }
+
+  .result-eyebrow{
+    text-align:center;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--accentA);
+    margin:0 0 8px;
+  }
+
+  h2.result-title{
+    font-family:'Fraunces', serif;
+    font-weight:800;
+    font-size:30px;
+    line-height:1.1;
+    text-align:center;
+    margin:0 0 10px;
+    background:linear-gradient(90deg, var(--accentA), var(--accentB));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  p.tagline{
+    text-align:center;
+    font-style:italic;
+    color:var(--text-muted);
+    font-size:15px;
+    margin:0 0 18px;
+  }
+
+  p.description{
+    font-size:15px;
+    line-height:1.6;
+    color:var(--text);
+    margin:0 0 26px;
+    text-align:left;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--accent);
+    color:#241A3D;
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:30px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="card" id="card">
+
+    <!-- INTRO -->
+    <section class="screen active" id="screen-intro">
+      <p class="eyebrow">A 60-second vibe check</p>
+      <h1 class="display">Which Era Are You Stuck In?</h1>
+      <p class="lede">Six questions. One verdict. Zero chill. Find out which decade your soul never actually left — then make your friends take it too.</p>
+      <button class="btn-primary" id="start-btn">Start the quiz →</button>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="screen" id="screen-quiz">
+      <div class="progress-row">
+        <span class="progress-label" id="progress-label">Question 1 of 6</span>
+        <div class="dots" id="dots"></div>
+      </div>
+      <h2 class="question-text" id="question-text"></h2>
+      <div class="options" id="options"></div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen" id="screen-result">
+      <p class="result-eyebrow">Your verdict</p>
+
+      <div class="dial-wrap">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#3D2E5C" stroke-width="1.5"/>
+          <g id="dial-icons"></g>
+          <g id="needle">
+            <line x1="100" y1="100" x2="100" y2="32" stroke="var(--accentA)" stroke-width="3" stroke-linecap="round" id="needle-line"/>
+            <circle cx="100" cy="100" r="6" fill="var(--accentA)" id="needle-hub"/>
+          </g>
+        </svg>
+      </div>
+
+      <h2 class="result-title" id="result-title"></h2>
+      <p class="tagline" id="result-tagline"></p>
+      <p class="description" id="result-description"></p>
+
+      <button class="btn-primary" id="share-btn">Share your result</button>
+      <button class="btn-secondary" id="retake-btn">Take it again</button>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+  // ---------- Data ----------
+  const ERA_ORDER = ['y2k','renaissance','grunge','disco','cyberpunk','cottage'];
+
+  const ERAS = {
+    y2k: {
+      title: "Y2K Optimist",
+      tagline: "The future got here early, and you ordered it in chrome.",
+      description: "You believe every problem has an upgrade. Flip phones, holographic stickers, dial-up that somehow felt like magic — you were built for a world that's always about to get better. \"Wait and see\" isn't really in your vocabulary.",
+      a: "#00C2FF", b: "#FF5DA2",
+      icon: 'phone'
+    },
+    renaissance: {
+      title: "Renaissance Romantic",
+      tagline: "You were born for candlelight and got stuck with fluorescent bulbs.",
+      description: "You collect old souls the way other people collect playlists. You'd rather write a letter than send a text, rather study a sunset than scroll past one. People come to you when they want proof the world still has beauty left in it.",
+      a: "#D4AF37", b: "#7A1F3D",
+      icon: 'book'
+    },
+    grunge: {
+      title: "90s Grunge Soul",
+      tagline: "You didn't choose the chaos. The chaos filled out the paperwork.",
+      description: "Mixtapes, flannel, and an allergy to anything manufactured — you've got main-character energy that refuses to perform for anyone. You say the quiet thing out loud, and somehow that makes you the most trusted person in the room.",
+      a: "#B5651D", b: "#6B6B47",
+      icon: 'flame'
+    },
+    disco: {
+      title: "Disco Maximalist",
+      tagline: "Every night is the last night of disco, as far as you're concerned.",
+      description: "Subtle was never really your language. You believe joy should be loud, outfits should sparkle, and every Tuesday deserves one good entrance. People remember the room better because you walked into it.",
+      a: "#FFD60A", b: "#C724B1",
+      icon: 'disco'
+    },
+    cyberpunk: {
+      title: "Cyberpunk Visionary",
+      tagline: "The system wasn't built for you, so you built your own.",
+      description: "Three a.m. is your office hours. You see the cracks in how things \"normally\" work and you're already three steps into rewiring them. Neon over fluorescent, code over small talk — you don't wait for permission to build the future.",
+      a: "#39FF14", b: "#0D7AFF",
+      icon: 'cpu'
+    },
+    cottage: {
+      title: "Cottagecore Dreamer",
+      tagline: "Slow down. The bread is still rising.",
+      description: "You measure a good day in sunlight, not screen time. Wildflowers, slow mornings, something warm in the oven — you've quietly figured out the good life was never about moving faster. People come to you to remember how to breathe.",
+      a: "#9CAF88", b: "#E8C4C4",
+      icon: 'flower'
+    }
+  };
+
+  const ICONS = {
+    phone: '<rect x="-7" y="-12" width="14" height="24" rx="3"/><line x1="-3" y1="9" x2="3" y2="9"/>',
+    book: '<path d="M-10,-9 C-6,-11 6,-11 10,-9 L10,10 C6,8 -6,8 -10,10 Z"/><line x1="0" y1="-9.5" x2="0" y2="9.5"/>',
+    flame: '<path d="M0,-12 C6,-6 8,-1 5,3 C7,1 7,5 4,8 C1,10 -4,10 -6,6 C-9,1 -7,-4 -2,-6 C-4,-3 -2,0 1,-1 C0,-5 -2,-9 0,-12 Z"/>',
+    disco: '<circle r="10"/><line x1="-5" y1="-5" x2="5" y2="5"/><line x1="-5" y1="5" x2="5" y2="-5"/><line x1="0" y1="-10" x2="0" y2="10"/><line x1="-10" y1="0" x2="10" y2="0"/>',
+    cpu: '<rect x="-8" y="-8" width="16" height="16" rx="2"/><line x1="-8" y1="-3" x2="-12" y2="-3"/><line x1="-8" y1="3" x2="-12" y2="3"/><line x1="8" y1="-3" x2="12" y2="-3"/><line x1="8" y1="3" x2="12" y2="3"/><line x1="-3" y1="-8" x2="-3" y2="-12"/><line x1="3" y1="-8" x2="3" y2="-12"/><line x1="-3" y1="8" x2="-3" y2="12"/><line x1="3" y1="8" x2="3" y2="12"/>',
+    flower: '<circle cx="0" cy="-7" r="4"/><circle cx="6" cy="-2" r="4"/><circle cx="4" cy="6" r="4"/><circle cx="-4" cy="6" r="4"/><circle cx="-6" cy="-2" r="4"/><circle r="2.5" fill="currentColor" stroke="none"/>'
+  };
+
+  const QUESTIONS = [
+    {
+      text: "Pick your Friday night.",
+      options: [
+        { era:'y2k', label:"Texting the group chat from your new flip phone" },
+        { era:'renaissance', label:"Writing letters by candlelight" },
+        { era:'grunge', label:"Burning a mixtape in a beat-up car" },
+        { era:'disco', label:"Dancing till the lights come up" },
+        { era:'cyberpunk', label:"Building something online till 3am" },
+        { era:'cottage', label:"Stargazing from a porch swing" }
+      ]
+    },
+    {
+      text: "Your dream outfit is...",
+      options: [
+        { era:'disco', label:"Sequins, head to toe, no notes" },
+        { era:'renaissance', label:"A velvet cloak with gold embroidery" },
+        { era:'grunge', label:"Flannel, ripped denim, combat boots" },
+        { era:'y2k', label:"Metallic mini skirt and butterfly clips" },
+        { era:'cyberpunk', label:"All black, neon visor, fingerless gloves" },
+        { era:'cottage', label:"A linen dress and a basket of wildflowers" }
+      ]
+    },
+    {
+      text: "Pick a soundtrack for your life.",
+      options: [
+        { era:'cyberpunk', label:"Synths that sound like a server room" },
+        { era:'y2k', label:"Bubblegum pop with a vocoder hook" },
+        { era:'cottage', label:"Acoustic guitar and birdsong" },
+        { era:'renaissance', label:"A string quartet at golden hour" },
+        { era:'grunge', label:"Distorted guitar and a mumbled chorus" },
+        { era:'disco', label:"A bassline you physically cannot sit through" }
+      ]
+    },
+    {
+      text: "Your ideal home is...",
+      options: [
+        { era:'grunge', label:"A garage you turned into a studio" },
+        { era:'disco', label:"A loft with a disco ball, obviously" },
+        { era:'cyberpunk', label:"A bunker full of glowing screens" },
+        { era:'cottage', label:"A cottage with a garden gone slightly wild" },
+        { era:'y2k', label:"A bedroom covered in lava lamps and posters" },
+        { era:'renaissance', label:"A library with a spiral staircase" }
+      ]
+    },
+    {
+      text: "Pick the quote that sounds like you.",
+      options: [
+        { era:'cottage', label:"\"Slow down, the bread is still rising.\"" },
+        { era:'cyberpunk', label:"\"The system wasn't built for me, so I built my own.\"" },
+        { era:'grunge', label:"\"I didn't choose chaos. Chaos chose me.\"" },
+        { era:'y2k', label:"\"Why wait for the future? Order it now.\"" },
+        { era:'disco', label:"\"Every night is the last night of disco.\"" },
+        { era:'renaissance', label:"\"Beauty rewards those who study it.\"" }
+      ]
+    },
+    {
+      text: "People come to you for...",
+      options: [
+        { era:'renaissance', label:"wisdom that sounds older than you are" },
+        { era:'grunge', label:"brutal honesty, no sugar added" },
+        { era:'cottage', label:"comfort and something warm to eat" },
+        { era:'cyberpunk', label:"a plan no one else thought of" },
+        { era:'y2k', label:"the next big trend before it's big" },
+        { era:'disco', label:"a reason to get dressed up" }
+      ]
+    }
+  ];
+
+  // ---------- State ----------
+  let current = 0;
+  const scores = { y2k:0, renaissance:0, grunge:0, disco:0, cyberpunk:0, cottage:0 };
+
+  const screens = {
+    intro: document.getElementById('screen-intro'),
+    quiz: document.getElementById('screen-quiz'),
+    result: document.getElementById('screen-result')
+  };
+
+  function showScreen(name){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  function buildDots(){
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for(let i=0;i<QUESTIONS.length;i++){
+      const d = document.createElement('div');
+      d.className = 'dot';
+      dots.appendChild(d);
+    }
+  }
+
+  function updateProgress(){
+    document.getElementById('progress-label').textContent = `Question ${current+1} of ${QUESTIONS.length}`;
+    document.querySelectorAll('.dot').forEach((d,i)=>{
+      d.classList.toggle('filled', i <= current);
+    });
+  }
+
+  function renderQuestion(){
+    const q = QUESTIONS[current];
+    document.getElementById('question-text').textContent = q.text;
+    const wrap = document.getElementById('options');
+    wrap.innerHTML = '';
+    // shuffle options for display so era order isn't predictable
+    const opts = [...q.options].sort(()=>Math.random()-0.5);
+    opts.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt.label;
+      btn.addEventListener('click', ()=> selectOption(opt.era));
+      wrap.appendChild(btn);
+    });
+    updateProgress();
+  }
+
+  function selectOption(era){
+    scores[era]++;
+    current++;
+    if(current < QUESTIONS.length){
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function buildDialIcons(){
+    const g = document.getElementById('dial-icons');
+    g.innerHTML = '';
+    ERA_ORDER.forEach((key, i)=>{
+      const theta = (-90 + i*60) * Math.PI/180;
+      const x = 100 + 80*Math.cos(theta);
+      const y = 100 + 80*Math.sin(theta);
+      const wrapG = document.createElementNS('http://www.w3.org/2000/svg','g');
+      wrapG.setAttribute('transform', `translate(${x},${y}) scale(0.85)`);
+      wrapG.setAttribute('class','dial-icon');
+      wrapG.setAttribute('id', 'icon-'+key);
+      wrapG.innerHTML = ICONS[ERAS[key].icon];
+      g.appendChild(wrapG);
+    });
+  }
+
+  function showResult(){
+    const winnerKey = ERA_ORDER.reduce((best, key)=> scores[key] > scores[best] ? key : best, ERA_ORDER[0]);
+    const era = ERAS[winnerKey];
+    const idx = ERA_ORDER.indexOf(winnerKey);
+
+    document.getElementById('result-title').textContent = era.title;
+    document.getElementById('result-tagline').textContent = era.tagline;
+    document.getElementById('result-description').textContent = era.description;
+
+    document.getElementById('card').style.setProperty('--accentA', era.a);
+    document.getElementById('card').style.setProperty('--accentB', era.b);
+    document.getElementById('needle-line').setAttribute('stroke', era.a);
+    document.getElementById('needle-hub').setAttribute('fill', era.a);
+
+    document.querySelectorAll('.dial-icon').forEach(el=>el.classList.remove('active-icon'));
+    document.getElementById('icon-'+winnerKey).classList.add('active-icon');
+
+    const targetDeg = idx*60 + 360*5;
+    const needle = document.getElementById('needle');
+    needle.style.transform = 'rotate(0deg)';
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        needle.style.transform = `rotate(${targetDeg}deg)`;
+      });
+    });
+
+    window._shareText = `I'm a ${era.title} 💫 ${era.tagline} What's your era? Take the quiz:`;
+
+    showScreen('result');
+  }
+
+  function resetQuiz(){
+    current = 0;
+    ERA_ORDER.forEach(k => scores[k] = 0);
+    document.getElementById('needle').style.transform = 'rotate(0deg)';
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+
+  async function shareResult(){
+    const text = window._shareText || "Find out which era you're stuck in:";
+    const url = window.location.href;
+    if(navigator.share){
+      try{
+        await navigator.share({ title: "Which Era Are You Stuck In?", text, url });
+      }catch(e){ /* user cancelled, no-op */ }
+    } else {
+      try{
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        showToast('Copied to clipboard ✓');
+      }catch(e){
+        showToast('Copy failed — try manually');
+      }
+    }
+  }
+
+  // ---------- Wire up ----------
+  document.getElementById('start-btn').addEventListener('click', ()=>{
+    buildDots();
+    showScreen('quiz');
+    renderQuestion();
+  });
+  document.getElementById('retake-btn').addEventListener('click', resetQuiz);
+  document.getElementById('share-btn').addEventListener('click', shareResult);
+
+  buildDialIcons();
+</script>
+
+</body>
+</html>
